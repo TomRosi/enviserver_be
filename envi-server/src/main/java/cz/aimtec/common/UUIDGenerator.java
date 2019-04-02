@@ -1,7 +1,5 @@
 package cz.aimtec.common;
 
-import java.util.UUID;
-
 public class UUIDGenerator {
 
 //    public static void main(String[] args) {

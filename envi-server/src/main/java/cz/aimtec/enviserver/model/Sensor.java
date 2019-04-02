@@ -4,6 +4,7 @@ import java.util.HashSet;
 public class Sensor {
 	
 	private static final HashSet<String> VALID_SENSORS = new HashSet<>();
+	public static final String MASTER_UUID = "fc8ba70e-5936-4b44-b528-9e3b353405d9";
 	
 	static {
 		VALID_SENSORS.add("df6021f7-3bdb-4ecb-9ccd-a0b50eeb141d");
@@ -25,15 +26,15 @@ public class Sensor {
 		VALID_SENSORS.add("b159c6a0-0753-41e0-afbb-85b1cb9f2c6f");
 		VALID_SENSORS.add("fdf35a23-dd0d-4a64-966e-a2e89a09b0ff");
 		VALID_SENSORS.add("610eb3d2-d48d-47b0-ba4e-5e04f5c55c80");
-		VALID_SENSORS.add("fc8ba70e-5936-4b44-b528-9e3b353405d9");
 	}
 	
 	public static final boolean isUUIDValid(String uuid) {
+		VALID_SENSORS.add(MASTER_UUID);
 		return VALID_SENSORS.contains(uuid);
 	}
 	
 	public static final String[] getAllSensors() {
-		return VALID_SENSORS.toArray(new String[20]);
+		return VALID_SENSORS.toArray(new String[0]);
 	}
 	
 	private Sensor() {
