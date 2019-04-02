@@ -1,0 +1,17 @@
+[{
+		"createdOn": "2019-03-20T12:00:00.000+01:00",
+		"sensorUUID": "fc8ba70e-5936-4b44-b528-9e3b353405d9",
+		"temperature": "26.5",
+		"status": "TEST"
+	}, {
+		"createdOn": "2019-03-20T13:00:00.000+01:00",
+		"sensorUUID": "fc8ba70e-5936-4b44-b528-9e3b353405d9",
+		"temperature": "30.7",
+		"status": "TEST"
+	}, {
+		"createdOn": "2019-03-20T14:00:00.000+01:00",
+		"sensorUUID": "fc8ba70e-5936-4b44-b528-9e3b353405d9",
+		"temperature": "35.4",
+		"status": "TEST"
+	}
+]
