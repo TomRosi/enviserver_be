@@ -37,7 +37,6 @@ public class DummyController {
 				try {
 					result = new JSONObject(result).toString();
 				} catch (JSONException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -45,7 +44,6 @@ public class DummyController {
 				try {
 					result = new JSONArray(result).toString();
 				} catch (JSONException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
