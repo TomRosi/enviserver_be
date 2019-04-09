@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import cz.aimtec.enviserver.model.Measurement;
 import cz.aimtec.enviserver.model.MeasurementStatus;
 import cz.aimtec.enviserver.model.Sensor;
+import cz.aimtec.enviserver.controller.MeasurementException;
 
 @Controller
 @RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
@@ -115,9 +116,9 @@ public class MeasurementController {
 				return stream.collect(Collectors.toList());
 			}
 
+		} else {
+			throw new MeasurementException(HttpStatus.BAD_REQUEST, MeasurementException.invalidUUID);
 		}
-		Stream<Measurement> stream = StreamSupport.stream(null, true);
-		return stream.collect(Collectors.toList());
 	}
 
 	private boolean isSet(String param) {
@@ -125,32 +126,33 @@ public class MeasurementController {
 	}
 
 	@PostMapping(path = "/measurements")
-	public @ResponseBody ResponseEntity<String> addNewIssue(@RequestBody Measurement record, @RequestHeader(value = "UUID") String UUID) {
+	public @ResponseBody ResponseEntity<String> addNewIssue(@RequestBody Measurement record,
+			@RequestHeader(value = "UUID") String UUID) {
 		logger.debug("Storing a measurement.");
 		if (Sensor.isUUIDValid(UUID)) {
-		Measurement newMeasurement = new Measurement((record.getTimestamp() == null) ? null : record.getTimestamp(),
-				(record.getSensorUUID() == null) ? null : record.getSensorUUID(),
-				(record.getTemperature() == null) ? null : record.getTemperature(),
-				(record.getStatus() == null) ? MeasurementStatus.OK : record.getStatus());
-		measurementRepository.save(newMeasurement);
-		return new ResponseEntity<>("Measurement stored.", HttpStatus.OK);
-		}
-		else {
-			return null;
+			Measurement newMeasurement = new Measurement((record.getTimestamp() == null) ? null : record.getTimestamp(),
+					(record.getSensorUUID() == null) ? null : record.getSensorUUID(),
+					(record.getTemperature() == null) ? null : record.getTemperature(),
+					(record.getStatus() == null) ? MeasurementStatus.OK : record.getStatus());
+			measurementRepository.save(newMeasurement);
+			return new ResponseEntity<>("Measurement stored.", HttpStatus.OK);
+		} else {
+			throw new MeasurementException(HttpStatus.BAD_REQUEST, MeasurementException.invalidUUID);
 		}
 	}
 
 	@GetMapping(path = "/measurements/{id}")
 	public @ResponseBody Measurement getById(@PathVariable Long id, @RequestHeader(value = "UUID") String UUID) {
 		logger.debug("Getting a single measurement (id = {}).", id);
+
 		if (Sensor.isUUIDValid(UUID)) {
 			if (measurementRepository.findOne(id).getSensorUUID().equals(UUID) || UUID.equals(Sensor.MASTER_UUID)) {
 				return measurementRepository.findOne(id);
 			} else {
-				return null;
+				throw new MeasurementException(HttpStatus.BAD_REQUEST, MeasurementException.invalidMeasurementUUID);
 			}
 		} else {
-			return null;
+			throw new MeasurementException(HttpStatus.BAD_REQUEST, MeasurementException.invalidUUID);
 		}
 
 	}
@@ -165,10 +167,10 @@ public class MeasurementController {
 				recordToUpdate.updateFrom(record);
 				return measurementRepository.save(recordToUpdate);
 			} else {
-				return null;
+				throw new MeasurementException(HttpStatus.BAD_REQUEST, MeasurementException.invalidMeasurementUUID);
 			}
 		} else {
-			return null;
+			throw new MeasurementException(HttpStatus.BAD_REQUEST, MeasurementException.invalidUUID);
 		}
 	}
 
@@ -181,10 +183,10 @@ public class MeasurementController {
 				measurementRepository.delete(id);
 				return new ResponseEntity<>("Measurement deleted.", HttpStatus.OK);
 			} else {
-				return null;
+				throw new MeasurementException(HttpStatus.BAD_REQUEST, MeasurementException.invalidMeasurementUUID);
 			}
 		} else {
-			return null;
+			throw new MeasurementException(HttpStatus.BAD_REQUEST, MeasurementException.invalidUUID);
 		}
 	}
 
