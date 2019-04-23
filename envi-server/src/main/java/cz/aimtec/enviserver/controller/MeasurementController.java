@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,7 +82,6 @@ public class MeasurementController {
 					MeasurementStatus measurementStatus = MeasurementStatus.valueOf(status.toUpperCase());
 					stream = stream.filter(item -> item.getStatus() == measurementStatus);
 				}
-
 				return stream.collect(Collectors.toList());
 
 			} else {
@@ -125,6 +125,7 @@ public class MeasurementController {
 		return (param != null && !param.isEmpty());
 	}
 
+
 	@PostMapping(path = "/measurements")
 	public @ResponseBody ResponseEntity<String> addNewIssue(@RequestBody Measurement record,
 			@RequestHeader(value = "UUID") String UUID) {
@@ -134,8 +135,13 @@ public class MeasurementController {
 					(record.getSensorUUID() == null) ? null : record.getSensorUUID(),
 					(record.getTemperature() == null) ? null : record.getTemperature(),
 					(record.getStatus() == null) ? MeasurementStatus.OK : record.getStatus());
-			measurementRepository.save(newMeasurement);
-			return new ResponseEntity<>("Measurement stored.", HttpStatus.OK);
+
+			newMeasurement = measurementRepository.save(newMeasurement);
+
+			JSONObject aJsonObject = new JSONObject(newMeasurement);
+			aJsonObject.put("message", "Measurement stored!");
+			
+			return new ResponseEntity<>(aJsonObject.toString(), HttpStatus.OK);
 		} else {
 			throw new MeasurementException(HttpStatus.BAD_REQUEST, MeasurementException.invalidUUID);
 		}

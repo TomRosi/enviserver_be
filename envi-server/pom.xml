@@ -17,6 +17,13 @@
 	</properties>
 
 	<dependencies>
+<!-- https://mvnrepository.com/artifact/org.json/json -->
+<dependency>
+    <groupId>org.json</groupId>
+    <artifactId>json</artifactId>
+</dependency>
+
+
 		<dependency>
 			<groupId>com.amazonaws.serverless</groupId>
 			<artifactId>aws-serverless-java-container-spring</artifactId>
@@ -65,11 +72,6 @@
 			<groupId>com.fasterxml.jackson.dataformat</groupId>
 			<artifactId>jackson-dataformat-xml</artifactId>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.json/json -->
-		<dependency>
-			<groupId>org.json</groupId>
-			<artifactId>json</artifactId>
-		</dependency>
 		<!-- https://mvnrepository.com/artifact/com.microsoft.sqlserver/sqljdbc4 -->
 		<!-- <dependency> <groupId>com.microsoft.sqlserver</groupId> <artifactId>sqljdbc4</artifactId> 
 			<version>4.0</version> </dependency> -->
@@ -85,8 +87,8 @@
 
 
 	</dependencies>
-	
-		<build>
+
+	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
