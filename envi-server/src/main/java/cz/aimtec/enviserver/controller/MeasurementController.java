@@ -1,10 +1,12 @@
 package cz.aimtec.enviserver.controller;
 
 import java.sql.Timestamp;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -138,8 +140,12 @@ public class MeasurementController {
 
 			newMeasurement = measurementRepository.save(newMeasurement);
 
-			JSONObject aJsonObject = new JSONObject(newMeasurement);
-			aJsonObject.put("message", "Measurement stored!");
+			
+
+			
+				JSONObject aJsonObject = new JSONObject(newMeasurement);
+				aJsonObject.put("message", "Measurement stored!");
+
 			
 			return new ResponseEntity<>(aJsonObject.toString(), HttpStatus.OK);
 		} else {

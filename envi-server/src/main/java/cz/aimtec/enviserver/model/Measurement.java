@@ -29,7 +29,7 @@ import cz.aimtec.enviserver.common.Constants;
 @JsonIdentityInfo(
 		generator = ObjectIdGenerators.PropertyGenerator.class, 
 		property = "id")
-public class Measurement {
+public class Measurement implements java.io.Serializable {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
