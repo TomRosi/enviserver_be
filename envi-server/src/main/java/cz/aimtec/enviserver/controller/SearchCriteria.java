@@ -7,9 +7,12 @@ public class SearchCriteria {
     
     
     
-	public SearchCriteria(String string, String string2, String string3) {
-		// TODO Auto-generated constructor stub
+	public SearchCriteria(String key, String operation, String value) {
+		setKey(key);
+		setOperation(operation);
+		setValue(value);
 	}
+	
 	public String getKey() {
 		return key;
 	}

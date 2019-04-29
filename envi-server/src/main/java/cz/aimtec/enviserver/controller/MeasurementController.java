@@ -1,19 +1,15 @@
 package cz.aimtec.enviserver.controller;
 
 import java.sql.Timestamp;
-import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.repository.support.Repositories;
+import org.springframework.data.jpa.domain.Specifications;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -56,42 +52,47 @@ public class MeasurementController {
 		if (Sensor.isUUIDValid(UUID)) {
 
 			MeasurementSpecification sensor = null;
+			MeasurementSpecification afterTms = null;
+			MeasurementSpecification beforeTms = null;
+			MeasurementSpecification maxTmp = null;
+			MeasurementSpecification minTmp = null;
+			MeasurementSpecification stat = null;
+
 			if (UUID.equals(Sensor.MASTER_UUID)) {
-				//Stream<Measurement> stream = StreamSupport.stream(measurementRepository.findAll().spliterator(), true);
 				// filter by creation timestamp
-				/*if (isSet(afterTimestamp)) {
+				// TODO need test
+				if (isSet(afterTimestamp)) {
 					Timestamp measurementAfterTimestamp = Timestamp.valueOf(afterTimestamp);
-					stream = stream.filter(item -> item.getTimestamp().after(measurementAfterTimestamp));
+					afterTms = new MeasurementSpecification(
+							new SearchCriteria("createdOn", ">", measurementAfterTimestamp.toString()));
 				}
 				if (isSet(beforeTimestamp)) {
 					Timestamp measurementBeforeTimestamp = Timestamp.valueOf(beforeTimestamp);
-					stream = stream.filter(item -> item.getTimestamp().before(measurementBeforeTimestamp));
+					beforeTms = new MeasurementSpecification(
+							new SearchCriteria("createdOn", "<", measurementBeforeTimestamp.toString()));
 				}
-*/
+
 				// filter by sensor UUID
 				if (isSet(sensorUUID)) {
-					//stream = stream.filter(item -> item.getSensorUUID() == sensorUUID);
-					sensor = new MeasurementSpecification(new SearchCriteria("sensor_uuid", ":", sensorUUID));
+					sensor = new MeasurementSpecification(new SearchCriteria("sensorUUID", ":", sensorUUID.toString()));
 				}
 
 				// filter by temperature
-				/*if (isSet(maxTemperature)) {
-					Float measurementMaxTemperature = Float.valueOf(maxTemperature);
-					stream = stream.filter(item -> item.getTemperature() <= measurementMaxTemperature);
+				if (isSet(maxTemperature)) {
+					maxTmp = new MeasurementSpecification(new SearchCriteria("temperature", "<", maxTemperature));
 				}
 				if (isSet(minTemperature)) {
-					Float measurementMinTemperature = Float.valueOf(minTemperature);
-					stream = stream.filter(item -> item.getTemperature() >= measurementMinTemperature);
-				}*/
+					minTmp = new MeasurementSpecification(new SearchCriteria("temperature", ">", minTemperature));
+				}
 
 				// filter by status
-				/*if (isSet(status)) {
-					MeasurementStatus measurementStatus = MeasurementStatus.valueOf(status.toUpperCase());
-					stream = stream.filter(item -> item.getStatus() == measurementStatus);
-				}*/
-				List<Measurement> measurementss = measurementRepository.findAll(sensor);
-				Stream<Measurement> stream = StreamSupport.stream(measurementRepository.findAll(sensor).spliterator(), true);
-				return stream.collect(Collectors.toList());
+				// TODO need research
+				if (isSet(status)) {
+					stat = new MeasurementSpecification(new SearchCriteria("status", ":", status));
+				}
+
+				return measurementRepository.findAll(
+						Specifications.where(maxTmp).and(minTmp).and(sensor).and(stat));
 
 			} else {
 
@@ -134,7 +135,6 @@ public class MeasurementController {
 		return (param != null && !param.isEmpty());
 	}
 
-
 	@PostMapping(path = "/measurements")
 	public @ResponseBody ResponseEntity<String> addNewIssue(@RequestBody Measurement record,
 			@RequestHeader(value = "UUID") String UUID) {
@@ -147,13 +147,9 @@ public class MeasurementController {
 
 			newMeasurement = measurementRepository.save(newMeasurement);
 
-			
+			JSONObject aJsonObject = new JSONObject(newMeasurement);
+			aJsonObject.put("message", "Measurement stored!");
 
-			
-				JSONObject aJsonObject = new JSONObject(newMeasurement);
-				aJsonObject.put("message", "Measurement stored!");
-
-			
 			return new ResponseEntity<>(aJsonObject.toString(), HttpStatus.OK);
 		} else {
 			throw new MeasurementException(HttpStatus.BAD_REQUEST, MeasurementException.invalidUUID);
