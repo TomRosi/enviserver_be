@@ -88,11 +88,13 @@ public class MeasurementController {
 				// filter by status
 				// TODO need research
 				if (isSet(status)) {
+					MeasurementStatus measurementStatus = MeasurementStatus.valueOf(status.toUpperCase());
 					stat = new MeasurementSpecification(new SearchCriteria("status", ":", status));
 				}
 
 				return measurementRepository.findAll(
-						Specifications.where(maxTmp).and(minTmp).and(sensor).and(stat));
+						Specifications.where(maxTmp).and(minTmp).and(sensor).and(afterTms)
+						);
 
 			} else {
 

@@ -2,6 +2,8 @@ package cz.aimtec.enviserver.controller;
 
 import org.springframework.data.jpa.domain.Specification;
 
+import java.sql.Timestamp;
+
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
@@ -28,6 +30,10 @@ public class MeasurementSpecification implements Specification<Measurement> {
 	@Override
 	public Predicate toPredicate(Root<Measurement> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
 
+		if (criteria.getKey().equals("afterTimestamp")) {
+			Timestamp measurementAfterTimestamp = Timestamp.valueOf(criteria.getValue().toString());
+			return builder.greaterThanOrEqualTo(root.<Timestamp>get(criteria.getKey()), measurementAfterTimestamp);
+		}
 		if (criteria.getOperation().equalsIgnoreCase(">")) {
 			return builder.greaterThanOrEqualTo(root.<String>get(criteria.getKey()), criteria.getValue().toString());
 		} else if (criteria.getOperation().equalsIgnoreCase("<")) {
