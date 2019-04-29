@@ -66,7 +66,7 @@ public class MeasurementController {
 
 				// filter by sensor UUID
 				if (isSet(sensorUUID)) {
-					stream = stream.filter(item -> item.getSensorUUID() == sensorUUID);
+					stream = stream.filter(item -> item.getSensorUUID().equals(sensorUUID));
 				}
 
 				// filter by temperature
