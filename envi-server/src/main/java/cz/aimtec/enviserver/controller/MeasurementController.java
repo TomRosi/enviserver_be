@@ -59,8 +59,8 @@ public class MeasurementController {
 			MeasurementSpecification stat = null;
 
 			if (UUID.equals(Sensor.MASTER_UUID)) {
-				// filter by creation timestamp
-				// TODO need test
+				// filter by creation time stamp
+				// TODO working only date
 				if (isSet(afterTimestamp)) {
 					Timestamp measurementAfterTimestamp = Timestamp.valueOf(afterTimestamp);
 					afterTms = new MeasurementSpecification(
