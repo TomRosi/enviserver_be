@@ -53,10 +53,6 @@ public class AlertController {
 		}
 	}
 
-	private boolean isSet(String param) {
-		return (param != null && !param.isEmpty());
-	}
-
 	@PostMapping(path = "/alerts")
 	public @ResponseBody ResponseEntity<String> addNewIssue(@RequestBody Alert record,
 			@RequestHeader(value = "UUID") String UUID) {

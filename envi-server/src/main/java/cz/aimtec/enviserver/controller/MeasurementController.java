@@ -2,10 +2,6 @@ package cz.aimtec.enviserver.controller;
 
 import java.sql.Timestamp;
 
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
-
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,7 +59,6 @@ public class MeasurementController {
 
 			if (UUID.equals(Sensor.MASTER_UUID)) {
 				// filter by creation time stamp
-				// TODO working only date
 				if (isSet(afterTimestamp)) {
 					Timestamp measurementAfterTimestamp = Timestamp.valueOf(afterTimestamp);
 					afterTms = new MeasurementSpecification(
@@ -99,34 +94,33 @@ public class MeasurementController {
 
 			} else {
 
-				Stream<Measurement> stream = StreamSupport
-						.stream(measurementRepository.findBySensorUUID(UUID).spliterator(), true);
-
-				// filter by creation timestamp
 				if (isSet(afterTimestamp)) {
 					Timestamp measurementAfterTimestamp = Timestamp.valueOf(afterTimestamp);
-					stream = stream.filter(item -> item.getTimestamp().after(measurementAfterTimestamp));
+					afterTms = new MeasurementSpecification(
+							new SearchCriteria("createdOn", ">", measurementAfterTimestamp.toString()));
 				}
 				if (isSet(beforeTimestamp)) {
 					Timestamp measurementBeforeTimestamp = Timestamp.valueOf(beforeTimestamp);
-					stream = stream.filter(item -> item.getTimestamp().before(measurementBeforeTimestamp));
+					beforeTms = new MeasurementSpecification(
+							new SearchCriteria("createdOn", "<", measurementBeforeTimestamp.toString()));
 				}
+
 				// filter by temperature
 				if (isSet(maxTemperature)) {
-					Float measurementMaxTemperature = Float.valueOf(maxTemperature);
-					stream = stream.filter(item -> item.getTemperature() <= measurementMaxTemperature);
+					maxTmp = new MeasurementSpecification(new SearchCriteria("temperature", "<", maxTemperature));
 				}
 				if (isSet(minTemperature)) {
-					Float measurementMinTemperature = Float.valueOf(minTemperature);
-					stream = stream.filter(item -> item.getTemperature() >= measurementMinTemperature);
+					minTmp = new MeasurementSpecification(new SearchCriteria("temperature", ">", minTemperature));
 				}
 
 				// filter by status
 				if (isSet(status)) {
-					MeasurementStatus measurementStatus = MeasurementStatus.valueOf(status.toUpperCase());
-					stream = stream.filter(item -> item.getStatus() == measurementStatus);
+					stat = new MeasurementSpecification(new SearchCriteria("status", ":", status));
 				}
-				return stream.collect(Collectors.toList());
+
+				return measurementRepository.findAll(
+						Specifications.where(maxTmp).and(minTmp).and(sensor).and(afterTms).and(stat).and(beforeTms)
+						);
 			}
 
 		} else {

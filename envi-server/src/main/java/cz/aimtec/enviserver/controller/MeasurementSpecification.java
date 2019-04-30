@@ -33,12 +33,14 @@ public class MeasurementSpecification implements Specification<Measurement> {
 		if (criteria.getKey().equals("status")) {
 			return builder.equal(root.get(criteria.getKey()),
 					MeasurementStatus.valueOf(criteria.getValue().toString().toUpperCase()));
-		} else if (criteria.getKey().equals("createdOn") && criteria.getOperation().equalsIgnoreCase(">")) {
-			return builder.greaterThanOrEqualTo(root.get(criteria.getKey()),
-					Timestamp.valueOf(criteria.getValue().toString()));
-		} else if (criteria.getKey().equals("createdOn") && criteria.getOperation().equalsIgnoreCase("<")) {
-			Timestamp measurementAfterTimestamp = Timestamp.valueOf(criteria.getValue().toString());
-			return builder.greaterThanOrEqualTo(root.<Timestamp>get(criteria.getKey()), measurementAfterTimestamp);
+		} else if (criteria.getKey().equals("createdOn")) {
+			if (criteria.getOperation().equalsIgnoreCase(">")) {
+				return builder.greaterThanOrEqualTo(root.get(criteria.getKey()),
+						Timestamp.valueOf(criteria.getValue().toString()));
+			} else if (criteria.getOperation().equalsIgnoreCase("<")) {
+				Timestamp measurementAfterTimestamp = Timestamp.valueOf(criteria.getValue().toString());
+				return builder.greaterThanOrEqualTo(root.<Timestamp>get(criteria.getKey()), measurementAfterTimestamp);
+			}
 		} else if (criteria.getOperation().equalsIgnoreCase(">")) {
 			return builder.greaterThanOrEqualTo(root.<String>get(criteria.getKey()), criteria.getValue().toString());
 		} else if (criteria.getOperation().equalsIgnoreCase("<")) {

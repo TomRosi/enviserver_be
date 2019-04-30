@@ -31,6 +31,11 @@ import cz.aimtec.enviserver.common.Constants;
 		property = "id")
 public class Measurement implements java.io.Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id")
