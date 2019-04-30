@@ -1,10 +1,7 @@
 package cz.aimtec.enviserver.controller;
 
 import java.sql.Timestamp;
-<<<<<<< HEAD
-import java.util.Map;
-=======
->>>>>>> pokusy
+
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -13,10 +10,9 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-<<<<<<< HEAD
-=======
+
 import org.springframework.data.jpa.domain.Specifications;
->>>>>>> pokusy
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -58,11 +54,6 @@ public class MeasurementController {
 
 		if (Sensor.isUUIDValid(UUID)) {
 
-<<<<<<< HEAD
-			if (UUID.equals(Sensor.MASTER_UUID)) {
-				Stream<Measurement> stream = StreamSupport.stream(measurementRepository.findAll().spliterator(), true);
-				// filter by creation timestamp
-=======
 			MeasurementSpecification sensor = null;
 			MeasurementSpecification afterTms = null;
 			MeasurementSpecification beforeTms = null;
@@ -73,7 +64,6 @@ public class MeasurementController {
 			if (UUID.equals(Sensor.MASTER_UUID)) {
 				// filter by creation time stamp
 				// TODO working only date
->>>>>>> pokusy
 				if (isSet(afterTimestamp)) {
 					Timestamp measurementAfterTimestamp = Timestamp.valueOf(afterTimestamp);
 					afterTms = new MeasurementSpecification(
@@ -87,45 +77,25 @@ public class MeasurementController {
 
 				// filter by sensor UUID
 				if (isSet(sensorUUID)) {
-<<<<<<< HEAD
-					stream = stream.filter(item -> item.getSensorUUID().equals(sensorUUID));
-=======
 					sensor = new MeasurementSpecification(new SearchCriteria("sensorUUID", ":", sensorUUID.toString()));
->>>>>>> pokusy
 				}
 
 				// filter by temperature
 				if (isSet(maxTemperature)) {
-<<<<<<< HEAD
-					Float measurementMaxTemperature = Float.valueOf(maxTemperature);
-					stream = stream.filter(item -> item.getTemperature() <= measurementMaxTemperature);
-				}
-				if (isSet(minTemperature)) {
-					Float measurementMinTemperature = Float.valueOf(minTemperature);
-					stream = stream.filter(item -> item.getTemperature() >= measurementMinTemperature);
-=======
 					maxTmp = new MeasurementSpecification(new SearchCriteria("temperature", "<", maxTemperature));
 				}
 				if (isSet(minTemperature)) {
 					minTmp = new MeasurementSpecification(new SearchCriteria("temperature", ">", minTemperature));
->>>>>>> pokusy
 				}
 
 				// filter by status
 				if (isSet(status)) {
-<<<<<<< HEAD
-					MeasurementStatus measurementStatus = MeasurementStatus.valueOf(status.toUpperCase());
-					stream = stream.filter(item -> item.getStatus() == measurementStatus);
-				}
-				return stream.collect(Collectors.toList());
-=======
 					stat = new MeasurementSpecification(new SearchCriteria("status", ":", status));
 				}
 
 				return measurementRepository.findAll(
 						Specifications.where(maxTmp).and(minTmp).and(sensor).and(afterTms).and(stat).and(beforeTms)
 						);
->>>>>>> pokusy
 
 			} else {
 
