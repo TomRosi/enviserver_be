@@ -1,8 +1,9 @@
 package cz.aimtec.enviserver.model;
+
 import java.util.HashSet;
 
 public class Sensor {
-	
+
 	private static final HashSet<String> VALID_SENSORS = new HashSet<>();
 	public static final String MASTER_UUID = "fc8ba70e-5936-4b44-b528-9e3b353405d9";
 	
@@ -29,15 +30,14 @@ public class Sensor {
 	}
 	
 	public static final boolean isUUIDValid(String uuid) {
-		VALID_SENSORS.add(MASTER_UUID);
-		return VALID_SENSORS.contains(uuid);
+		return VALID_SENSORS.contains(uuid) || MASTER_UUID.equals(uuid);
 	}
 	
-	public static final String[] getAllSensors() {
+	public static final String[] getAllSensors () {
 		return VALID_SENSORS.toArray(new String[0]);
 	}
-	
-	private Sensor() {
-		// implicit private constructor
+
+	public Sensor() {
+
 	}
 }

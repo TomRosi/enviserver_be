@@ -2,24 +2,14 @@ package cz.aimtec.enviserver.model;
 
 import java.sql.Timestamp;
 
-import javax.persistence.Column;
-import javax.persistence.Convert;
+import javax.persistence.*;
 
 /**
  * @author dobj
  */
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
+import com.fasterxml.jackson.annotation.*;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import cz.aimtec.enviserver.common.Constants;
 
@@ -45,6 +35,11 @@ public class Measurement implements java.io.Serializable {
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.JSON_TIME_FORMAT)
 	private Timestamp createdOn;
 
+	@Transient
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private String name;
+
+	@JsonIgnore
 	@Column(name = "sensor_uuid")	
 	private String sensorUUID;
 	
@@ -96,7 +91,7 @@ public class Measurement implements java.io.Serializable {
 	
     @Override
     public int hashCode() {
-        return 31;
+        return sensorUUID.hashCode();
     }
 
 	public Long getId() {
@@ -142,5 +137,9 @@ public class Measurement implements java.io.Serializable {
 	public void setModifiedOn(Timestamp modifiedOn) {
 		this.modifiedOn = modifiedOn;
 	}
+
+	public String getName() { return name; }
+
+	public void setName(String name) { this.name = name; }
 
 }

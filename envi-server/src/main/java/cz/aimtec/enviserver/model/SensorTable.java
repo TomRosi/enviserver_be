@@ -74,7 +74,7 @@ public class SensorTable {
 
     @Override
     public int hashCode() {
-        return 31;
+        return sensorUUID.hashCode();
     }
 
     public Long getId() {

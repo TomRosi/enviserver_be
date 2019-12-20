@@ -10,7 +10,7 @@ public class SensorTest {
 	@Test
 	public void validUUIDTest() {
 		String uuid = "fc8ba70e-5936-4b44-b528-9e3b353405d9";
-		assertTrue("UUID " + uuid + " shoud be valid.", Sensor.isUUIDValid(uuid));		
+		assertTrue("UUID " + uuid + " shoud be valid.", Sensor.isUUIDValid(uuid));
 	}
 	
 	@Test

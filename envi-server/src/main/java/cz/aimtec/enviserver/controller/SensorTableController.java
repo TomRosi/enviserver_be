@@ -1,5 +1,6 @@
 package cz.aimtec.enviserver.controller;
 
+import cz.aimtec.enviserver.model.Alert;
 import cz.aimtec.enviserver.model.Sensor;
 import cz.aimtec.enviserver.model.SensorTable;
 import org.slf4j.Logger;
@@ -11,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;

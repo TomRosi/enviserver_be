@@ -17,7 +17,7 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 @SpringBootApplication(scanBasePackages={"cz.aimtec.enviserver"}) // same as @Configuration @EnableAutoConfiguration @ComponentScan
-public class EnviServerApplication extends SpringBootServletInitializer {
+public class EnviServerApplication {
 
     
 	public static void main(String[] args) {				
@@ -26,40 +26,4 @@ public class EnviServerApplication extends SpringBootServletInitializer {
 		
 		SpringApplication.run(EnviServerApplication.class, args);
 	}
-	
-	/*
-     * Create required HandlerMapping, to avoid several default HandlerMapping instances being created
-     */
-    @Bean
-    public HandlerMapping handlerMapping() {
-        return new RequestMappingHandlerMapping();
-    }
-
-    /*
-     * Create required HandlerAdapter, to avoid several default HandlerAdapter instances being created
-     */
-    @Bean
-    public HandlerAdapter handlerAdapter() {
-        return new RequestMappingHandlerAdapter();
-    }
-
-    /*
-     * optimization - avoids creating default exception resolvers; not required as the serverless container handles
-     * all exceptions
-     *
-     * By default, an ExceptionHandlerExceptionResolver is created which creates many dependent object, including
-     * an expensive ObjectMapper instance.
-     *
-     * To enable custom @ControllerAdvice classes remove this bean.
-     */
-    @Bean
-    public HandlerExceptionResolver handlerExceptionResolver() {
-        return new HandlerExceptionResolver() {
-
-            @Override
-            public ModelAndView resolveException(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
-                return null;
-            }
-        };
-    }
 }
