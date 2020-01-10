@@ -1,0 +1,113 @@
+package cz.aimtec.enviserver.controller;
+
+import cz.aimtec.enviserver.model.Sensor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
+@Controller
+@RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+public class SensorController {
+
+	Logger logger = LoggerFactory.getLogger(this.getClass());
+
+	@Autowired
+	private SensorRepository sensorRepository;
+
+	@GetMapping(path = "/sensors")
+	public @ResponseBody Iterable<Sensor> getAllIssues(@RequestHeader(value = "UUID") String UUID) {
+
+		logger.debug("Fetching measurements.");
+
+		if (SensorUUID.isUUIDValid(UUID)) {
+
+			if (UUID.equals(SensorUUID.MASTER_UUID)) {
+				Stream<Sensor> stream = StreamSupport.stream(sensorRepository.findAll().spliterator(), true);
+				return stream.collect(Collectors.toList());
+
+			} else {
+				Stream<Sensor> stream = StreamSupport.stream(sensorRepository.findBySensorUUID(UUID).spliterator(), true);
+				return stream.collect(Collectors.toList());
+			}
+		} else {
+			throw new MeasurementException(HttpStatus.BAD_REQUEST, MeasurementException.invalidUUID);
+		}
+	}
+
+	@PostMapping(path = "/sensors")
+	public @ResponseBody ResponseEntity<String> addNewIssue(@RequestBody Sensor record,
+			@RequestHeader(value = "UUID") String UUID) {
+		logger.debug("Storing an sensor.");
+		if (SensorUUID.isUUIDValid(UUID)) {
+			Sensor newMeasurement = new Sensor((record.getSensorUUID() == null) ? null : record.getSensorUUID(),
+					(record.getLocation() == null) ? null : record.getLocation(),
+					(record.getMinTemperature()== null) ? null : record.getMinTemperature(),
+					(record.getMaxTemperature() == null) ? null : record.getMaxTemperature());
+			sensorRepository.save(newMeasurement);
+			return new ResponseEntity<>("Sensor stored.", HttpStatus.OK);
+		} else {
+			throw new MeasurementException(HttpStatus.BAD_REQUEST, MeasurementException.invalidUUID);
+		}
+	}
+
+	@GetMapping(path = "/sensors/{id}")
+	public @ResponseBody Sensor getById(@PathVariable Long id, @RequestHeader(value = "UUID") String UUID) {
+		logger.debug("Getting a single sensor (id = {}).", id);
+
+		if (SensorUUID.isUUIDValid(UUID)) {
+			if (sensorRepository.findOne(id).getSensorUUID().equals(UUID) || UUID.equals(SensorUUID.MASTER_UUID)) {
+				return sensorRepository.findOne(id);
+			} else {
+				throw new MeasurementException(HttpStatus.BAD_REQUEST, MeasurementException.invalidMeasurementUUID);
+			}
+		} else {
+			throw new MeasurementException(HttpStatus.BAD_REQUEST, MeasurementException.invalidUUID);
+		}
+
+	}
+
+	@PutMapping("/sensors/{id}")
+	public @ResponseBody Sensor updateById(@PathVariable Long id, @RequestBody Sensor record, @RequestHeader(value = "UUID") String UUID) {
+		logger.debug("Updating an sensor (id = {}).", id);
+		if (SensorUUID.isUUIDValid(UUID)) {
+			if (sensorRepository.findOne(id).getSensorUUID().equals(UUID) || UUID.equals(SensorUUID.MASTER_UUID)) {
+				Sensor recordToUpdate = sensorRepository.findOne(id);
+				if (UUID.equals(SensorUUID.MASTER_UUID)) {
+					recordToUpdate.updateFrom(record, true);
+				}
+				recordToUpdate.updateFrom(record, false);
+				return sensorRepository.save(recordToUpdate);
+			} else {
+				throw new MeasurementException(HttpStatus.BAD_REQUEST, MeasurementException.invalidMeasurementUUID);
+			}
+		} else {
+			throw new MeasurementException(HttpStatus.BAD_REQUEST, MeasurementException.invalidUUID);
+		}
+	}
+
+	@DeleteMapping(path = "/sensors/{id}")
+	public @ResponseBody ResponseEntity<String> deleteById(@PathVariable Long id,
+			@RequestHeader(value = "UUID") String UUID) {
+		logger.debug("Deleting an alert (id = {}).", id);
+		if (SensorUUID.isUUIDValid(UUID)) {
+			if (sensorRepository.findOne(id).getSensorUUID().equals(UUID) || UUID.equals(SensorUUID.MASTER_UUID)) {
+				sensorRepository.delete(id);
+				return new ResponseEntity<>("Sensor deleted.", HttpStatus.OK);
+			} else {
+				throw new MeasurementException(HttpStatus.BAD_REQUEST, MeasurementException.invalidMeasurementUUID);
+			}
+		} else {
+			throw new MeasurementException(HttpStatus.BAD_REQUEST, MeasurementException.invalidUUID);
+		}
+	}
+
+}

@@ -1,9 +1,11 @@
 package cz.aimtec.enviserver.controller;
 
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import cz.aimtec.enviserver.model.SensorTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,24 +35,47 @@ public class AlertController {
 	@Autowired
 	private AlertRepository alertRepository;
 
+	@Autowired
+	private SensorTableRepository sensorTableRepository;
+
 	@GetMapping(path = "/alerts")
 	public @ResponseBody Iterable<Alert> getAllIssues(@RequestHeader(value = "UUID") String UUID) {
 
 		logger.debug("Fetching measurements.");
 
+		Iterable<Alert> alerts;
+		Iterable<SensorTable> sensorsTable;
+
 		if (Sensor.isUUIDValid(UUID)) {
 
-			if (UUID.equals(Sensor.MASTER_UUID)) {
-				Stream<Alert> stream = StreamSupport.stream(alertRepository.findAll().spliterator(), true);
-				return stream.collect(Collectors.toList());
+			if (Sensor.MASTER_UUID.equals(UUID)) {
+				alerts = alertRepository.findAll();
+				sensorsTable = sensorTableRepository.findAll();
+
+				Map<String, SensorTable> sensorMap = new HashMap<>();
+				Iterator<SensorTable> it = sensorsTable.iterator();
+
+				while(it.hasNext()) {
+					SensorTable tmp = it.next();
+					sensorMap.put(tmp.getSensorUUID(), tmp);
+				}
+
+				for(Alert a : alerts)
+					a.setName(sensorMap.get(a.getSensorUUID()).getName());
 
 			} else {
-				Stream<Alert> stream = StreamSupport.stream(alertRepository.findBySensorUUID(UUID).spliterator(), true);
-				return stream.collect(Collectors.toList());
+				alerts = alertRepository.findBySensorUUID(UUID);
+				sensorsTable = sensorTableRepository.findBySensorUUID(UUID);
+
+				SensorTable sensor = sensorsTable.iterator().next();
+
+				for(Alert a : alerts)
+					a.setName(sensor.getName());
 			}
-		} else {
+
+			return alerts;
+		} else
 			throw new MeasurementException(HttpStatus.BAD_REQUEST, MeasurementException.invalidUUID);
-		}
 	}
 
 	@PostMapping(path = "/alerts")

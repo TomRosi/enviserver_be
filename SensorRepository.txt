@@ -1,0 +1,9 @@
+package cz.aimtec.enviserver.controller;
+
+import org.springframework.data.repository.CrudRepository;
+
+public interface SensorRepository extends CrudRepository<Sensor, Long> {
+
+	public Iterable<Sensor> findBySensorUUID(String UUID);
+	
+}
