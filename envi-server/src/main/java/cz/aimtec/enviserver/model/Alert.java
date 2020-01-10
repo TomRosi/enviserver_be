@@ -6,18 +6,10 @@ import java.sql.Timestamp;
  * @author qhlaj
  */
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
+import com.fasterxml.jackson.annotation.*;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import cz.aimtec.enviserver.common.Constants;
 
@@ -25,8 +17,9 @@ import cz.aimtec.enviserver.common.Constants;
 @Table(name="alerts", schema="dbo")
 @EnableTransactionManagement
 @JsonIdentityInfo(
-		generator = ObjectIdGenerators.PropertyGenerator.class, 
+		generator = ObjectIdGenerators.PropertyGenerator.class,
 		property = "id")
+
 public class Alert {
 
 	@Id
@@ -38,7 +31,12 @@ public class Alert {
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.JSON_TIME_FORMAT)
 	private Timestamp createdOn;
 
-	@Column(name = "sensor_uuid")	
+	@Transient
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private String name;
+
+	@JsonIgnore
+	@Column(name = "sensor_uuid")
 	private String sensorUUID;
 	
 	@Column(name = "temperature")	
@@ -95,7 +93,7 @@ public class Alert {
 	
     @Override
     public int hashCode() {
-        return 31;
+        return sensorUUID.hashCode();
     }
 
 	public Long getId() {
@@ -110,6 +108,7 @@ public class Alert {
 		this.createdOn = timestamp;
 	}
 
+//	@JsonIgnore
 	public String getSensorUUID() {
 		return sensorUUID;
 	}
@@ -155,4 +154,9 @@ public class Alert {
 		this.modifiedOn = modifiedOn;
 	}
 
+
+
+	public String getName() { return name; }
+
+	public void setName(String name) { this.name = name; }
 }
