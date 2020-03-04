@@ -7,10 +7,12 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="envi-server" />
+        <module name="EnviServer" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="envi-server" target="1.8" />
+      <module name="EnviServer" target="1.5" />
     </bytecodeTargetLevel>
   </component>
 </project>

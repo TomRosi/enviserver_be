@@ -1,27 +1,20 @@
 package cz.aimtec.enviserver.controller;
 
+import java.sql.Timestamp;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import cz.aimtec.enviserver.model.SensorTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specifications;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
+
+import org.springframework.data.jpa.domain.Specifications;
 
 import cz.aimtec.enviserver.model.Alert;
 import cz.aimtec.enviserver.model.Sensor;
@@ -38,8 +31,15 @@ public class AlertController {
 	@Autowired
 	private SensorTableRepository sensorTableRepository;
 
+	// TODO: přejmenovat low a high na min a max, tak jak je to u Measurements
 	@GetMapping(path = "/alerts")
-	public @ResponseBody Iterable<Alert> getAllIssues(@RequestHeader(value = "UUID") String UUID) {
+	public @ResponseBody Iterable<Alert> getAllIssues(@RequestParam(required = false) String afterTimestamp,
+			@RequestParam(required = false) String beforeTimestamp,
+			@RequestParam(required = false) String sensorUUID,
+			@RequestParam(required = false) String minTemperature,
+			@RequestParam(required = false) String maxTemperature,
+			@RequestParam(required = false) String selectedUUID,
+			@RequestHeader(value = "UUID") String UUID) {
 
 		logger.debug("Fetching measurements.");
 
@@ -48,8 +48,38 @@ public class AlertController {
 
 		if (Sensor.isUUIDValid(UUID)) {
 
+			AlertSpecification sensorU = null;
+			AlertSpecification afterTms = null;
+			AlertSpecification beforeTms = null;
+			AlertSpecification highTmp = null;
+			AlertSpecification lowTmp = null;
+
+			if (isSet(afterTimestamp)) {
+				Timestamp measurementAfterTimestamp = Timestamp.valueOf(afterTimestamp);
+				afterTms = new AlertSpecification(
+						new SearchCriteria("createdOn", ">", measurementAfterTimestamp.toString()));
+			}
+			if (isSet(beforeTimestamp)) {
+				Timestamp measurementBeforeTimestamp = Timestamp.valueOf(beforeTimestamp);
+				beforeTms = new AlertSpecification(
+						new SearchCriteria("createdOn", "<", measurementBeforeTimestamp.toString()));
+			}
+
+			// filter by sensor UUID
+			if (isSet(sensorUUID)) {
+				sensorU = new AlertSpecification(new SearchCriteria("sensorUUID", ":", sensorUUID.toString()));
+			}
+
+			// filter by temperature
+			if (isSet(maxTemperature)) {
+				highTmp = new AlertSpecification(new SearchCriteria("temperature", "<", maxTemperature));
+			}
+			if (isSet(minTemperature)) {
+				lowTmp = new AlertSpecification(new SearchCriteria("temperature", ">", minTemperature));
+			}
+
 			if (Sensor.MASTER_UUID.equals(UUID)) {
-				alerts = alertRepository.findAll();
+				alerts = alertRepository.findAll(Specifications.where(highTmp).and(lowTmp).and(sensorU).and(afterTms).and(beforeTms));
 				sensorsTable = sensorTableRepository.findAll();
 
 				Map<String, SensorTable> sensorMap = new HashMap<>();
@@ -64,7 +94,7 @@ public class AlertController {
 					a.setName(sensorMap.get(a.getSensorUUID()).getName());
 
 			} else {
-				alerts = alertRepository.findBySensorUUID(UUID);
+				alerts = alertRepository.findAll(Specifications.where(highTmp).and(lowTmp).and(sensorU).and(afterTms).and(beforeTms));
 				sensorsTable = sensorTableRepository.findBySensorUUID(UUID);
 
 				SensorTable sensor = sensorsTable.iterator().next();
@@ -76,6 +106,10 @@ public class AlertController {
 			return alerts;
 		} else
 			throw new MeasurementException(HttpStatus.BAD_REQUEST, MeasurementException.invalidUUID);
+	}
+
+	private boolean isSet(String param) {
+		return (param != null && !param.isEmpty());
 	}
 
 	@PostMapping(path = "/alerts")
@@ -108,7 +142,6 @@ public class AlertController {
 		} else {
 			throw new MeasurementException(HttpStatus.BAD_REQUEST, MeasurementException.invalidUUID);
 		}
-
 	}
 
 	@PutMapping("/alerts/{id}")

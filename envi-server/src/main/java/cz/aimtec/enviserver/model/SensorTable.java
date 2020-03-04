@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 
 @Entity
@@ -15,12 +17,12 @@ import javax.persistence.*;
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "id")
 public class SensorTable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
-    @JsonIgnore
     @Column(name = "uuid")
     private String sensorUUID;
 
@@ -35,6 +37,9 @@ public class SensorTable {
 
     @Column(name = "max_temperature")
     private Float maxTemperature;
+
+    @ManyToMany(mappedBy = "sensorsTable")
+    private Set<User> users = new HashSet<>();
 
     public SensorTable() {
     }

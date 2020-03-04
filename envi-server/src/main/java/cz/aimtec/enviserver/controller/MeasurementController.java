@@ -43,11 +43,18 @@ public class MeasurementController {
 	private SensorTableRepository sensorTableRepository;
 
 	@GetMapping(path = "/measurements")
-	public @ResponseBody Iterable<Measurement> getAllIssues(@RequestParam(required = false) String afterTimestamp,
-			@RequestParam(required = false) String beforeTimestamp, @RequestParam(required = false) String sensorUUID,
+	public @ResponseBody Iterable<Measurement> getAllIssues(
+			@RequestParam(required = false) String afterTimestamp,
+			@RequestParam(required = false) String beforeTimestamp,
+			@RequestParam(required = false) String sensorUUID,
 			@RequestParam(required = false) String minTemperature,
-			@RequestParam(required = false) String maxTemperature, @RequestParam(required = false) String status,
-			@RequestParam(required = false) Integer maxResults, @RequestParam(required = false) Integer offset,
+			@RequestParam(required = false) String maxTemperature,
+			@RequestParam(required = false) String status,
+			@RequestParam(required = false) Integer maxResults,
+			@RequestParam(required = false) Integer offset,
+
+			@RequestParam(required = false) String selectedUUID,
+
 			@RequestHeader(value = "UUID") String UUID) {
 
 		logger.debug("Fetching measurements.");
@@ -57,7 +64,6 @@ public class MeasurementController {
 
 
 		if (Sensor.isUUIDValid(UUID)) {
-
 			MeasurementSpecification sensor = null;
 			MeasurementSpecification afterTms = null;
 			MeasurementSpecification beforeTms = null;
@@ -87,6 +93,7 @@ public class MeasurementController {
 			}
 			if (isSet(minTemperature)) {
 				minTmp = new MeasurementSpecification(new SearchCriteria("temperature", ">", minTemperature));
+				//http://localhost:8080/enviserver/measurements?maxTemperature=27&minTemperature=10
 			}
 
 			// filter by status
@@ -96,7 +103,7 @@ public class MeasurementController {
 
 			if (Sensor.MASTER_UUID.equals(UUID)) {
 
-				measurements = measurementRepository.findAll(); //Specifications.where(maxTmp).and(minTmp).and(afterTms).and(stat).and(beforeTms)
+				measurements = measurementRepository.findAll(Specifications.where(maxTmp).and(minTmp).and(sensor).and(afterTms).and(stat).and(beforeTms));
 				sensorsTable = sensorTableRepository.findAll();
 
 				Map<String, SensorTable> sensorMap = new HashMap<>();

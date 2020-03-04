@@ -25,7 +25,6 @@ public class Sensor {
 		VALID_SENSORS.add("8d4c7344-3a32-4bd9-8650-5f418b1e0a11");
 		VALID_SENSORS.add("736763a5-a71d-4db9-9c99-318c6c2ffd31");
 		VALID_SENSORS.add("b159c6a0-0753-41e0-afbb-85b1cb9f2c6f");
-		VALID_SENSORS.add("fdf35a23-dd0d-4a64-966e-a2e89a09b0ff");
 		VALID_SENSORS.add("610eb3d2-d48d-47b0-ba4e-5e04f5c55c80");
 	}
 	

@@ -20,14 +20,14 @@ public class UserSensor {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "sensor_id")
+    @Column(name = "sensors_id")
     private String sensorID;
 
-    @Column(name = "user_id")
+    @Column(name = "users_id")
     private String userID;
 
 
-    public UserSensor(String sensorID, String userID) {
+    public UserSensor(String sensorID, String alertID) {
         setSensorID(sensorID);
         setUserID(userID);
     }
@@ -69,7 +69,7 @@ public class UserSensor {
         return userID;
     }
 
-    public void setUserID(String userID) {
+    public void setUserID(String alertID) {
         this.userID = userID;
     }
 }
